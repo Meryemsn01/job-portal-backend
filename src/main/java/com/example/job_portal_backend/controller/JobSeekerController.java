@@ -1,13 +1,17 @@
 package com.example.job_portal_backend.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.job_portal_backend.entity.JobSeeker;
 import com.example.job_portal_backend.entity.User;
 import com.example.job_portal_backend.repository.JobSeekerRepository;
 import com.example.job_portal_backend.repository.UserRepository;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/jobseekers")
@@ -40,4 +44,7 @@ public class JobSeekerController {
 
         return ResponseEntity.ok(jobSeekerRepository.save(jobSeeker));
     }
+    
+
+
 }

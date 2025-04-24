@@ -2,7 +2,6 @@ package com.example.job_portal_backend.dto;
 
 public class ApplicationRequest {
     private Long jobId;
-    private Long jobSeekerId;
     private String cvFileUrl; // optionnel pour l’instant
 
     public ApplicationRequest() {
@@ -14,14 +13,6 @@ public class ApplicationRequest {
 
     public void setJobId(Long jobId) {
         this.jobId = jobId;
-    }
-
-    public Long getJobSeekerId() {
-        return jobSeekerId;
-    }
-
-    public void setJobSeekerId(Long jobSeekerId) {
-        this.jobSeekerId = jobSeekerId;
     }
 
     public String getCvFileUrl() {
@@ -36,7 +27,6 @@ public class ApplicationRequest {
     public String toString() {
         return "ApplicationRequest{" +
                 "jobId=" + jobId +
-                ", jobSeekerId=" + jobSeekerId +
                 ", cvFileUrl='" + cvFileUrl + '\'' +
                 '}';
     }

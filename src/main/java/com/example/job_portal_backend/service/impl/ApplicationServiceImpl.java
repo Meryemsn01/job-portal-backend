@@ -1,49 +1,49 @@
 package com.example.job_portal_backend.service.impl;
 
-import org.springframework.stereotype.Service;
-
 import com.example.job_portal_backend.dto.ApplicationRequest;
-import com.example.job_portal_backend.entity.Application;
-import com.example.job_portal_backend.entity.Job;
-import com.example.job_portal_backend.entity.JobSeeker;
-import com.example.job_portal_backend.repository.ApplicationRepository;
-import com.example.job_portal_backend.repository.JobRepository;
-import com.example.job_portal_backend.repository.JobSeekerRepository;
+import com.example.job_portal_backend.entity.*;
+import com.example.job_portal_backend.repository.*;
 import com.example.job_portal_backend.service.ApplicationService;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
 
-    private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
     private final JobRepository jobRepository;
     private final JobSeekerRepository jobSeekerRepository;
+    private final ApplicationRepository applicationRepository;
 
-    public ApplicationServiceImpl(ApplicationRepository applicationRepository,
-                                  JobRepository jobRepository,
-                                  JobSeekerRepository jobSeekerRepository) {
-        this.applicationRepository = applicationRepository;
+    public ApplicationServiceImpl(UserRepository userRepository, JobRepository jobRepository,
+                                  JobSeekerRepository jobSeekerRepository, ApplicationRepository applicationRepository) {
+        this.userRepository = userRepository;
         this.jobRepository = jobRepository;
         this.jobSeekerRepository = jobSeekerRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     @Override
-    public Application applyToJob(ApplicationRequest request) {
-        Job job = jobRepository.findById(request.getJobId())
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+public Application applyToJob(ApplicationRequest request, String email) {
+    Job job = jobRepository.findById(request.getJobId())
+            .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        JobSeeker seeker = jobSeekerRepository.findById(request.getJobSeekerId())
-                .orElseThrow(() -> new RuntimeException("Job seeker not found"));
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        boolean alreadyApplied = applicationRepository.existsByJobAndJobSeeker(job, seeker);
-        if (alreadyApplied) {
-            throw new RuntimeException("Already applied to this job.");
-        }
+    JobSeeker seeker = jobSeekerRepository.findByUser(user)
+            .orElseThrow(() -> new RuntimeException("Job seeker profile not found"));
 
-        Application application = new Application();
-        application.setJob(job);
-        application.setJobSeeker(seeker);
-        application.setCvFileUrl(request.getCvFileUrl());
-
-        return applicationRepository.save(application);
+    boolean alreadyApplied = applicationRepository.existsByJobAndJobSeeker(job, seeker);
+    if (alreadyApplied) {
+        throw new RuntimeException("Already applied to this job.");
     }
+
+    Application application = new Application();
+    application.setJob(job);
+    application.setJobSeeker(seeker);
+    application.setCvFileUrl(request.getCvFileUrl());
+
+    return applicationRepository.save(application);
+}
+
 }

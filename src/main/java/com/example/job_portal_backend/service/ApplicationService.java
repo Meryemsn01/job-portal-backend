@@ -4,6 +4,6 @@ import com.example.job_portal_backend.dto.ApplicationRequest;
 import com.example.job_portal_backend.entity.Application;
 
 public interface ApplicationService {
-    Application applyToJob(ApplicationRequest request);
+    Application applyToJob(ApplicationRequest request, String email);
 }
 
