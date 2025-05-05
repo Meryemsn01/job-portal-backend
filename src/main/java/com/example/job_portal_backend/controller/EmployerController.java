@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.job_portal_backend.dto.ApplicationStatusUpdateRequest;
 import com.example.job_portal_backend.dto.EmployerInfoResponse;
 import com.example.job_portal_backend.dto.EmployerProfileRequest;
+import com.example.job_portal_backend.dto.JobSeekerProfileSummary;
 import com.example.job_portal_backend.entity.Application;
 import com.example.job_portal_backend.entity.Employer;
 import com.example.job_portal_backend.entity.Job;
@@ -111,5 +112,11 @@ public ResponseEntity<EmployerInfoResponse> getEmployerByJobId(@PathVariable Lon
             return ResponseEntity.ok("Statut mis à jour avec succès");
         }
         
+        @GetMapping("/applications/{id}/candidate")
+        @PreAuthorize("hasRole('EMPLOYER')")
+        public ResponseEntity<JobSeekerProfileSummary> getCandidateDetails(@PathVariable Long id) {
+            return ResponseEntity.ok(employerService.getCandidateProfileByApplicationId(id));
+        }
+
     }
 
