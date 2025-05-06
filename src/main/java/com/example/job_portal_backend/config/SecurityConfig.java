@@ -1,6 +1,5 @@
 package com.example.job_portal_backend.config;
 
-import com.example.job_portal_backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,10 +7,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.job_portal_backend.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity // ✅ Active les annotations @PreAuthorize
@@ -28,7 +29,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/api/ping", "/api/whoami", "/api/test/**", "/api/jobseekers/**").permitAll()
+                .requestMatchers("/auth/**", "/api/ping", "/api/whoami", "/api/jobs/search", "/api/test/**", "/api/jobseekers/**").permitAll()
                 .requestMatchers("/api/applications/**").hasAuthority("ROLE_JOB_SEEKER")
                 .anyRequest().authenticated()
             )

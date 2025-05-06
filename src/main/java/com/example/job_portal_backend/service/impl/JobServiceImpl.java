@@ -1,5 +1,10 @@
 package com.example.job_portal_backend.service.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.example.job_portal_backend.dto.JobRequest;
 import com.example.job_portal_backend.dto.JobResponse;
 import com.example.job_portal_backend.entity.Employer;
@@ -7,10 +12,6 @@ import com.example.job_portal_backend.entity.Job;
 import com.example.job_portal_backend.repository.EmployerRepository;
 import com.example.job_portal_backend.repository.JobRepository;
 import com.example.job_portal_backend.service.JobService;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -95,4 +96,20 @@ public class JobServiceImpl implements JobService {
         response.setEmployerName(job.getEmployer().getCompanyName());
         return response;
     }
+
+    @Override
+    public List<JobResponse> searchJobs(String keyword, String location, String category, String contractType, Integer experienceLevel) {
+        return jobRepository.findAll().stream()
+                .filter(job ->
+                    (keyword == null || job.getTitle().toLowerCase().contains(keyword.toLowerCase())) &&
+                    (location == null || job.getLocation().equalsIgnoreCase(location)) &&
+                    (category == null || job.getCategory().equalsIgnoreCase(category)) &&
+                    (contractType == null || job.getContractType().equalsIgnoreCase(contractType)) &&
+                    (experienceLevel == null || job.getExperienceLevel() == experienceLevel)
+                )
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+    
+
 }

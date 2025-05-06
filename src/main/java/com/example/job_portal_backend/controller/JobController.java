@@ -4,7 +4,15 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.job_portal_backend.dto.JobRequest;
 import com.example.job_portal_backend.dto.JobResponse;
@@ -54,4 +62,16 @@ public class JobController {
     public ResponseEntity<List<JobResponse>> getJobsByEmployer(@PathVariable Long employerId) {
         return ResponseEntity.ok(jobService.getJobsByEmployer(employerId));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<JobResponse>> searchJobs(
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String location,
+        @RequestParam(required = false) String category,
+        @RequestParam(required = false) String contractType,
+        @RequestParam(required = false) Integer experienceLevel
+    ) {
+        return ResponseEntity.ok(jobService.searchJobs(keyword, location, category, contractType, experienceLevel));
+    }
+
 }
