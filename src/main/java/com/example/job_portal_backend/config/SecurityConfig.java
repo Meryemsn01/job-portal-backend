@@ -27,12 +27,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/api/ping", "/api/whoami", "/api/jobs/search", "/api/test/**", "/api/jobseekers/**").permitAll()
-                .requestMatchers("/api/applications/**").hasAuthority("ROLE_JOB_SEEKER")
-                .anyRequest().authenticated()
-            )
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/auth/**",
+                "/api/ping",
+                "/api/whoami",
+                "/api/jobs/search",
+                "/uploads/**", // ✅ autoriser les fichiers uploadés
+                "/api/test/**",
+                "/api/jobseekers/profile"
+            ).permitAll()
+            .requestMatchers("/api/jobseekers/**").hasAuthority("ROLE_JOB_SEEKER")
+            .requestMatchers("/api/applications/**").hasAuthority("ROLE_JOB_SEEKER")
+            .anyRequest().authenticated()
+        )
+        
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
