@@ -9,6 +9,7 @@ import com.example.job_portal_backend.entity.User;
 
 public interface JobSeekerRepository extends JpaRepository<JobSeeker, Long> {
     Optional<JobSeeker> findByUser(User user);
-    
+    void deleteByUser(User user);
+
 }
 
