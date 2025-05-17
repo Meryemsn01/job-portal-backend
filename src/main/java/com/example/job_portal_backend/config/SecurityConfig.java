@@ -36,7 +36,8 @@ public class SecurityConfig {
                 "/api/jobs/search",
                 "/uploads/**", // ✅ autoriser les fichiers uploadés
                 "/api/test/**",
-                "/api/jobseekers/profile"
+                "/api/jobseekers/profile",
+                "/api/test/**"
             ).permitAll()
             .requestMatchers("/api/jobseekers/**").hasAuthority("ROLE_JOB_SEEKER")
             .requestMatchers("/api/applications/**").hasAuthority("ROLE_JOB_SEEKER")

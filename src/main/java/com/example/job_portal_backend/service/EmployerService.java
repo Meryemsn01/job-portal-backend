@@ -11,11 +11,11 @@ import com.example.job_portal_backend.entity.Application;
 import com.example.job_portal_backend.entity.Employer;
 import com.example.job_portal_backend.entity.JobSeeker;
 import com.example.job_portal_backend.entity.User;
+import com.example.job_portal_backend.exception.ResourceNotFoundException;
+import com.example.job_portal_backend.exception.UnauthorizedActionException;
 import com.example.job_portal_backend.repository.ApplicationRepository;
 import com.example.job_portal_backend.repository.EmployerRepository;
 import com.example.job_portal_backend.repository.UserRepository;
-
-
 
 @Service
 public class EmployerService {
@@ -34,10 +34,10 @@ public class EmployerService {
 
     public Employer updateProfile(String email, EmployerProfileRequest request) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé avec l'email : " + email));
 
         Employer employer = employerRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Employer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil employeur non trouvé pour l'utilisateur ID : " + user.getId()));
 
         employer.setCompanyName(request.getCompanyName());
         employer.setCompanyLogo(request.getCompanyLogo());
@@ -51,21 +51,19 @@ public class EmployerService {
 
     public JobSeekerProfileSummary getCandidateProfileByApplicationId(Long applicationId) {
         Application app = applicationRepository.findById(applicationId)
-    .orElseThrow(() -> new RuntimeException("Candidature introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Candidature introuvable avec l'ID : " + applicationId));
 
         String employerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User employerUser = userRepository.findByEmail(employerEmail)
-            .orElseThrow(() -> new RuntimeException("Employeur introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employeur non trouvé avec l'email : " + employerEmail));
 
         Employer employer = employerRepository.findByUserId(employerUser.getId())
-            .orElseThrow(() -> new RuntimeException("Profil employeur introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil employeur introuvable pour l'utilisateur ID : " + employerUser.getId()));
 
-        // Vérifier si cette application appartient à un job de cet employeur
         if (!app.getJob().getEmployer().getId().equals(employer.getId())) {
-            throw new RuntimeException("Accès non autorisé à cette candidature");
+            throw new UnauthorizedActionException("Vous n'êtes pas autorisé à accéder à cette candidature.");
         }
-
 
         JobSeeker js = app.getJobSeeker();
 
@@ -73,12 +71,9 @@ public class EmployerService {
         dto.setFullName(js.getFullName());
         dto.setEmail(js.getUser().getEmail());
         dto.setCvFileUrl(app.getCvFileUrl());
-
         dto.setSkills(Arrays.asList(js.getSkills().split(",")));
-
         dto.setExperiences(Arrays.asList(js.getExperience().split(",")));
         dto.setEducation(Arrays.asList(js.getEducation().split(",")));
-        
 
         return dto;
     }

@@ -9,6 +9,7 @@ import com.example.job_portal_backend.dto.JobRequest;
 import com.example.job_portal_backend.dto.JobResponse;
 import com.example.job_portal_backend.entity.Employer;
 import com.example.job_portal_backend.entity.Job;
+import com.example.job_portal_backend.exception.ResourceNotFoundException;
 import com.example.job_portal_backend.repository.EmployerRepository;
 import com.example.job_portal_backend.repository.JobRepository;
 import com.example.job_portal_backend.service.JobService;
@@ -35,14 +36,14 @@ public class JobServiceImpl implements JobService {
     @Override
     public JobResponse getJobById(Long id) {
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Offre introuvable avec l'ID : " + id));
         return mapToResponse(job);
     }
 
     @Override
     public JobResponse createJob(JobRequest request) {
         Employer employer = employerRepository.findById(request.getEmployerId())
-                .orElseThrow(() -> new RuntimeException("Employer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employeur introuvable avec l'ID : " + request.getEmployerId()));
 
         Job job = new Job();
         job.setTitle(request.getTitle());
@@ -59,7 +60,7 @@ public class JobServiceImpl implements JobService {
     @Override
     public JobResponse updateJob(Long id, JobRequest request) {
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Offre à mettre à jour introuvable avec l'ID : " + id));
 
         job.setTitle(request.getTitle());
         job.setDescription(request.getDescription());
@@ -73,6 +74,9 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public void deleteJob(Long id) {
+        if (!jobRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Impossible de supprimer, offre non trouvée avec l'ID : " + id);
+        }
         jobRepository.deleteById(id);
     }
 
@@ -80,6 +84,20 @@ public class JobServiceImpl implements JobService {
     public List<JobResponse> getJobsByEmployer(Long employerId) {
         return jobRepository.findByEmployerId(employerId)
                 .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JobResponse> searchJobs(String keyword, String location, String category, String contractType, Integer experienceLevel) {
+        return jobRepository.findAll().stream()
+                .filter(job ->
+                        (keyword == null || job.getTitle().toLowerCase().contains(keyword.toLowerCase())) &&
+                        (location == null || job.getLocation().equalsIgnoreCase(location)) &&
+                        (category == null || job.getCategory().equalsIgnoreCase(category)) &&
+                        (contractType == null || job.getContractType().equalsIgnoreCase(contractType)) &&
+                        (experienceLevel == null || job.getExperienceLevel() == experienceLevel)
+                )
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -96,20 +114,4 @@ public class JobServiceImpl implements JobService {
         response.setEmployerName(job.getEmployer().getCompanyName());
         return response;
     }
-
-    @Override
-    public List<JobResponse> searchJobs(String keyword, String location, String category, String contractType, Integer experienceLevel) {
-        return jobRepository.findAll().stream()
-                .filter(job ->
-                    (keyword == null || job.getTitle().toLowerCase().contains(keyword.toLowerCase())) &&
-                    (location == null || job.getLocation().equalsIgnoreCase(location)) &&
-                    (category == null || job.getCategory().equalsIgnoreCase(category)) &&
-                    (contractType == null || job.getContractType().equalsIgnoreCase(contractType)) &&
-                    (experienceLevel == null || job.getExperienceLevel() == experienceLevel)
-                )
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-    
-
 }

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.job_portal_backend.entity.JobSeeker;
 import com.example.job_portal_backend.entity.User;
+import com.example.job_portal_backend.exception.ResourceNotFoundException;
 import com.example.job_portal_backend.repository.JobSeekerRepository;
 import com.example.job_portal_backend.repository.UserRepository;
 
@@ -40,10 +41,10 @@ public class JobSeekerController {
     public ResponseEntity<JobSeeker> updateProfile(@RequestBody JobSeeker updatedInfo, Authentication auth) {
         String email = auth.getName();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         JobSeeker jobSeeker = jobSeekerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Job Seeker profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job Seeker profile not found"));
 
         jobSeeker.setFullName(updatedInfo.getFullName());
         jobSeeker.setPhone(updatedInfo.getPhone());
@@ -61,10 +62,10 @@ public class JobSeekerController {
     public ResponseEntity<String> uploadCv(@RequestParam("file") MultipartFile file, Authentication auth) {
         String email = auth.getName();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         JobSeeker jobSeeker = jobSeekerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Job seeker not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job Seeker not found"));
 
         try {
             // Nom unique

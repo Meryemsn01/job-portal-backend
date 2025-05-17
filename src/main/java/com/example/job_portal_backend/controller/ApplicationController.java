@@ -17,6 +17,7 @@ import com.example.job_portal_backend.entity.Application;
 import com.example.job_portal_backend.entity.Job;
 import com.example.job_portal_backend.entity.JobSeeker;
 import com.example.job_portal_backend.entity.User;
+import com.example.job_portal_backend.exception.ResourceNotFoundException;
 import com.example.job_portal_backend.repository.ApplicationRepository;
 import com.example.job_portal_backend.repository.JobRepository;
 import com.example.job_portal_backend.repository.JobSeekerRepository;
@@ -62,10 +63,10 @@ public ResponseEntity<Application> applyToJob(@RequestBody ApplicationRequest re
     public ResponseEntity<List<Application>> getMyApplications(Authentication auth) {
         String email = auth.getName();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         JobSeeker jobSeeker = jobSeekerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Job Seeker profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job Seeker profile not found"));
 
         List<Application> apps = applicationRepository.findByJobSeeker(jobSeeker);
         return ResponseEntity.ok(apps);
@@ -76,13 +77,13 @@ public ResponseEntity<Application> applyToJob(@RequestBody ApplicationRequest re
     public ResponseEntity<Boolean> hasAlreadyApplied(@RequestParam Long jobId, Authentication auth) {
         String email = auth.getName();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         JobSeeker jobSeeker = jobSeekerRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Job Seeker not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job Seeker not found"));
 
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         boolean alreadyApplied = applicationRepository.existsByJobAndJobSeeker(job, jobSeeker);
         return ResponseEntity.ok(alreadyApplied);

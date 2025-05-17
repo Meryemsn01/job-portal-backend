@@ -20,6 +20,7 @@ import com.example.job_portal_backend.entity.Application;
 import com.example.job_portal_backend.entity.Employer;
 import com.example.job_portal_backend.entity.Job;
 import com.example.job_portal_backend.entity.User;
+import com.example.job_portal_backend.exception.ResourceNotFoundException;
 import com.example.job_portal_backend.repository.ApplicationRepository;
 import com.example.job_portal_backend.repository.EmployerRepository;
 import com.example.job_portal_backend.repository.JobRepository;
@@ -61,10 +62,10 @@ public class EmployerController {
         String email = auth.getName();
     
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     
         Employer employer = employerRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Employer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
     
         List<Job> jobs = jobRepository.findByEmployerId(employer.getId());
     
@@ -76,11 +77,11 @@ public class EmployerController {
     @GetMapping("/from-job/{jobId}")
 public ResponseEntity<EmployerInfoResponse> getEmployerByJobId(@PathVariable Long jobId) {
     Job job = jobRepository.findById(jobId)
-            .orElseThrow(() -> new RuntimeException("Job not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
     Employer employer = job.getEmployer();
     if (employer == null) {
-        throw new RuntimeException("Employer not found for this job");
+        throw new ResourceNotFoundException("Employer not found for this job");
     }
 
     EmployerInfoResponse response = new EmployerInfoResponse();

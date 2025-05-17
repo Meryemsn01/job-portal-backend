@@ -4,6 +4,7 @@ import com.example.job_portal_backend.dto.AuthRequest;
 import com.example.job_portal_backend.dto.AuthResponse;
 import com.example.job_portal_backend.dto.SignupRequest;
 import com.example.job_portal_backend.entity.*;
+import com.example.job_portal_backend.exception.ResourceNotFoundException;
 import com.example.job_portal_backend.repository.*;
 import com.example.job_portal_backend.security.JwtUtils;
 import org.springframework.http.ResponseEntity;
@@ -77,7 +78,7 @@ public class AuthController {
         );
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
